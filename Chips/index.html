@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chips – Premium Grilled Potato Chips</title>
+  <meta name="description" content="Discover the crunch of premium grilled potato chips. Choose from Sea Salt, Original, and Lightly Salted flavors." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    /* ── Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+      color: white;
+    }
+
+    /* ── Dynamic Background ── */
+    .bg-scene {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      transition: background-color 0.6s ease-in-out;
+      overflow: hidden;
+    }
+    .bg-rings {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 180vmax;
+      height: 180vmax;
+      pointer-events: none;
+    }
+    .bg-rings .ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.08);
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      transition: border-color 0.6s ease-in-out;
+    }
+    .bg-rings .ring:nth-child(1) { width: 22%; height: 22%; border-color: rgba(255,255,255,0.18); }
+    .bg-rings .ring:nth-child(2) { width: 36%; height: 36%; border-color: rgba(255,255,255,0.14); }
+    .bg-rings .ring:nth-child(3) { width: 50%; height: 50%; border-color: rgba(255,255,255,0.10); }
+    .bg-rings .ring:nth-child(4) { width: 64%; height: 64%; border-color: rgba(255,255,255,0.07); }
+    .bg-rings .ring:nth-child(5) { width: 78%; height: 78%; border-color: rgba(255,255,255,0.04); }
+    .bg-rings .ring:nth-child(6) { width: 92%; height: 92%; border-color: rgba(255,255,255,0.02); }
+
+    @keyframes ringPulse {
+      0%, 100% { transform: translate(-50%,-50%) scale(1); }
+      50%      { transform: translate(-50%,-50%) scale(1.02); }
+    }
+    .bg-rings .ring { animation: ringPulse 6s ease-in-out infinite; }
+    .bg-rings .ring:nth-child(2) { animation-delay: 0.3s; }
+    .bg-rings .ring:nth-child(3) { animation-delay: 0.6s; }
+    .bg-rings .ring:nth-child(4) { animation-delay: 0.9s; }
+    .bg-rings .ring:nth-child(5) { animation-delay: 1.2s; }
+    .bg-rings .ring:nth-child(6) { animation-delay: 1.5s; }
+
+    /* ── Hero bag animation ── */
+    .hero-bag {
+      transition: transform 0.6s cubic-bezier(.4,0,.2,1), opacity 0.5s ease;
+    }
+    .hero-bag.entering {
+      animation: bagEnter 0.65s cubic-bezier(.4,0,.2,1) forwards;
+    }
+    @keyframes bagEnter {
+      0%   { opacity: 0; transform: scale(0.8) rotate(-8deg) translateY(30px); }
+      60%  { opacity: 1; transform: scale(1.05) rotate(2deg) translateY(-5px); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg) translateY(0); }
+    }
+
+    /* ── Thumbnail hover ── */
+    .thumb-bag {
+      transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+      cursor: pointer;
+      filter: brightness(0.85);
+    }
+    .thumb-bag:hover,
+    .thumb-bag.active {
+      transform: scale(1.18);
+      filter: brightness(1);
+    }
+    .thumb-bag.active {
+      filter: brightness(1) drop-shadow(0 0 18px rgba(255,255,255,0.45));
+    }
+
+    /* ── Nav pill & Glass cards ── */
+    .nav-pill, .glass-card {
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+
+    /* ── Order button shimmer ── */
+    .btn-order {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-order::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0%   { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    /* ── Carousel controls ── */
+    .ctrl-btn {
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .ctrl-btn:hover {
+      background: rgba(255,255,255,0.25);
+      transform: scale(1.1);
+    }
+
+    /* ── Mobile bottom bar ── */
+    @media (max-width: 767px) {
+      .mobile-order-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        padding: 12px 20px;
+        background: rgba(0,0,0,0.55);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-top: 1px solid rgba(255,255,255,0.1);
+      }
+    }
+
+    /* ── Text transitions ── */
+    .hero-text {
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+    .hero-text.fading {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    /* ── Horizontal thumbnail scroller (mobile) ── */
+    .thumb-scroll::-webkit-scrollbar { height: 4px; }
+    .thumb-scroll::-webkit-scrollbar-track { background: transparent; }
+    .thumb-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 2px; }
+
+    /* ── Mobile menu ── */
+    .mobile-menu {
+      transform: translateY(-100%);
+      transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+    }
+    .mobile-menu.open {
+      transform: translateY(0);
+    }
+
+    /* subtle floating particles */
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      pointer-events: none;
+      animation: float linear infinite;
+    }
+    @keyframes float {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* ── Scroll Animations ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+    }
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .delay-100 { transition-delay: 100ms; }
+    .delay-200 { transition-delay: 200ms; }
+    .delay-300 { transition-delay: 300ms; }
+
+    /* ── Cart Styles ── */
+    .cart-sidebar {
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .cart-sidebar.open {
+      transform: translateX(0);
+    }
+    .toast {
+      animation: slideIn 0.3s ease-out forwards, fadeOut 0.3s ease-in 2.7s forwards;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; transform: translateX(100%); }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-900 text-white selection:bg-white selection:text-black">
+
+  <!-- ══════════ DYNAMIC BACKGROUND ══════════ -->
+  <div id="bgScene" class="bg-scene" style="background-color: #5b6e7a;">
+    <div class="bg-rings">
+      <div class="ring"></div>
+      <div class="ring"></div>
+      <div class="ring"></div>
+      <div class="ring"></div>
+      <div class="ring"></div>
+      <div class="ring"></div>
+    </div>
+    <div id="particles"></div>
+  </div>
+
+  <!-- ══════════ HEADER / NAV ══════════ -->
+  <header class="fixed top-0 left-0 right-0 z-50 px-5 md:px-10 py-4 flex items-center justify-between">
+    <a href="#home" id="logo" class="flex items-center gap-2 group">
+      <svg class="w-8 h-8 text-white transition-transform group-hover:rotate-12" viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="2.5" fill="rgba(255,255,255,0.1)"/>
+        <path d="M14 26c1-6 4-14 6-14s5 8 6 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="20" cy="15" r="2.5" fill="currentColor"/>
+      </svg>
+      <span class="text-xl font-extrabold tracking-tight">Chips</span>
+    </a>
+
+    <nav class="hidden md:flex nav-pill rounded-full px-2 py-1.5">
+      <a href="#home" class="px-5 py-2 text-sm font-semibold text-white/90 hover:text-white rounded-full hover:bg-white/20 transition-all">Home</a>
+      <a href="#shop" class="px-5 py-2 text-sm font-semibold text-white/90 hover:text-white rounded-full hover:bg-white/20 transition-all">Shop</a>
+      <a href="#scoop" class="px-5 py-2 text-sm font-semibold text-white/90 hover:text-white rounded-full hover:bg-white/20 transition-all">Scoop</a>
+      <a href="#sweet" class="px-5 py-2 text-sm font-semibold text-white/90 hover:text-white rounded-full hover:bg-white/20 transition-all">Sweet</a>
+      <a href="#about" class="px-5 py-2 text-sm font-semibold text-white/90 hover:text-white rounded-full hover:bg-white/20 transition-all">About Us</a>
+    </nav>
+
+    <div class="flex items-center gap-4">
+      <button id="searchBtn" class="p-2 rounded-full hover:bg-white/10 transition-colors" aria-label="Search">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <button id="cartBtn" class="relative p-2 rounded-full hover:bg-white/10 transition-colors" aria-label="Cart">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        <span id="cartBadge" class="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 flex items-center justify-center text-[10px] font-bold bg-red-500 text-white rounded-full leading-none hidden" style="min-width:18px;min-height:18px;">0</span>
+      </button>
+      <button id="menuToggle" class="md:hidden p-2 rounded-full hover:bg-white/10 transition-colors" aria-label="Menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Menu Overlay -->
+  <div id="mobileMenu" class="mobile-menu fixed inset-0 z-40 bg-black/90 backdrop-blur-xl flex flex-col items-center justify-center gap-6">
+    <button id="menuClose" class="absolute top-5 right-5 p-2 rounded-full hover:bg-white/10">
+      <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <a href="#home" class="text-3xl font-bold hover:text-white/80 transition-colors">Home</a>
+    <a href="#shop" class="text-3xl font-bold hover:text-white/80 transition-colors">Shop</a>
+    <a href="#scoop" class="text-3xl font-bold hover:text-white/80 transition-colors">Scoop</a>
+    <a href="#sweet" class="text-3xl font-bold hover:text-white/80 transition-colors">Sweet</a>
+    <a href="#about" class="text-3xl font-bold hover:text-white/80 transition-colors">About Us</a>
+  </div>
+
+  <div class="relative z-10">
+    <!-- ══════════ HERO SECTION ══════════ -->
+    <section id="home" class="min-h-screen flex items-center relative overflow-hidden">
+      <div class="w-full max-w-[1400px] mx-auto px-5 md:px-10 pt-24 pb-28 md:pb-10">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-4 items-center min-h-[70vh]">
+          <div class="md:col-span-4 flex flex-col justify-center order-1 md:order-1">
+            <h1 id="heroHeading" class="hero-text text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black uppercase leading-[1.05] tracking-tight mb-4">
+              Eat Our<br/>Grilled Potato<br/>Chips
+            </h1>
+            <p id="heroPrice" class="hero-text text-3xl lg:text-4xl font-extrabold mb-4 text-white/90">₹400</p>
+            <p id="heroDesc" class="hero-text text-sm lg:text-base text-white/80 leading-relaxed max-w-sm mb-8 font-medium">
+              Experience the satisfying crunch of our perfectly grilled wavy chips. Crafted from premium potatoes, every bite delivers bold flavor and an irresistible texture that keeps you coming back.
+            </p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <div class="flex items-center gap-1 nav-pill rounded-full px-1 py-1">
+                <button id="prevBtn" class="ctrl-btn w-10 h-10 flex items-center justify-center rounded-full text-white/80" aria-label="Previous">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <button id="playPauseBtn" class="ctrl-btn w-10 h-10 flex items-center justify-center rounded-full text-white/80" aria-label="Play/Pause">
+                  <svg id="pauseIcon" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+                  <svg id="playIcon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </button>
+                <button id="nextBtn" class="ctrl-btn w-10 h-10 flex items-center justify-center rounded-full text-white/80" aria-label="Next">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+              <button id="orderHeroBtn" class="btn-order bg-gray-900/80 hover:bg-gray-900 text-white font-bold text-sm px-8 py-3.5 rounded-full transition-all hover:scale-105 hover:shadow-2xl border border-white/10">
+                Order Now
+              </button>
+            </div>
+            <div class="flex items-center gap-2 mt-6" id="dotIndicators"></div>
+          </div>
+          <div class="md:col-span-4 flex items-center justify-center order-2 md:order-2 py-8 md:py-0">
+            <div class="relative w-full max-w-[340px] md:max-w-[400px] lg:max-w-[460px] aspect-[3/4] flex items-center justify-center">
+              <img id="heroBag" src="images/bag_sea_salt.png" alt="Lay's Wavy Sea Salt Chips" class="hero-bag w-full h-full object-contain drop-shadow-2xl" draggable="false" />
+            </div>
+          </div>
+          <div class="md:col-span-4 flex md:flex-col items-center md:items-end justify-center gap-4 md:gap-5 order-3 md:order-3">
+            <div class="flex md:flex-col gap-4 md:gap-5 overflow-x-auto md:overflow-visible thumb-scroll pb-2 md:pb-0 w-full md:w-auto justify-center md:justify-end md:pr-4 lg:pr-10">
+              <button class="thumb-bag flex-shrink-0 rounded-2xl overflow-hidden w-24 h-32 sm:w-28 sm:h-36 md:w-28 md:h-36 lg:w-32 lg:h-40 bg-white/5 border border-white/10 p-2 active" data-index="0" aria-label="Sea Salt flavor">
+                <img src="images/bag_sea_salt.png" alt="Sea Salt" class="w-full h-full object-contain pointer-events-none" />
+              </button>
+              <button class="thumb-bag flex-shrink-0 rounded-2xl overflow-hidden w-24 h-32 sm:w-28 sm:h-36 md:w-28 md:h-36 lg:w-32 lg:h-40 bg-white/5 border border-white/10 p-2" data-index="1" aria-label="Original flavor">
+                <img src="images/bag_original.png" alt="Original" class="w-full h-full object-contain pointer-events-none" />
+              </button>
+              <button class="thumb-bag flex-shrink-0 rounded-2xl overflow-hidden w-24 h-32 sm:w-28 sm:h-36 md:w-28 md:h-36 lg:w-32 lg:h-40 bg-white/5 border border-white/10 p-2" data-index="2" aria-label="Lightly Salted flavor">
+                <img src="images/bag_salted.png" alt="Lightly Salted" class="w-full h-full object-contain pointer-events-none" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ SHOP SECTION ══════════ -->
+    <section id="shop" class="py-24 px-5 md:px-10 max-w-[1400px] mx-auto min-h-[60vh] flex flex-col justify-center">
+      <div class="text-center mb-16 reveal">
+        <h2 class="text-4xl md:text-5xl font-black uppercase mb-4 tracking-tight">Shop All Flavors</h2>
+        <p class="text-lg text-white/80 max-w-2xl mx-auto">Get your favorite crunch delivered straight to your door. Stock up and never run out.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="glass-card rounded-3xl p-8 flex flex-col items-center text-center reveal delay-100 hover:-translate-y-2 transition-transform duration-300">
+          <img src="images/bag_sea_salt.png" alt="Sea Salt" class="w-48 h-64 object-contain mb-6 drop-shadow-xl" />
+          <h3 class="text-2xl font-bold mb-2">Sea Salt</h3>
+          <p class="text-white/70 mb-4 font-medium">Classic savory perfection</p>
+          <div class="flex items-center justify-between w-full mt-auto">
+            <span class="text-2xl font-black">₹400</span>
+            <button onclick="addToCart('sea-salt', 'Sea Salt', 400, 'images/bag_sea_salt.png')" class="bg-white text-gray-900 font-bold px-5 py-2 rounded-full hover:bg-gray-200 transition-colors">Add to Cart</button>
+          </div>
+        </div>
+        <div class="glass-card rounded-3xl p-8 flex flex-col items-center text-center reveal delay-200 hover:-translate-y-2 transition-transform duration-300">
+          <img src="images/bag_original.png" alt="Original" class="w-48 h-64 object-contain mb-6 drop-shadow-xl" />
+          <h3 class="text-2xl font-bold mb-2">Original</h3>
+          <p class="text-white/70 mb-4 font-medium">The iconic original crunch</p>
+          <div class="flex items-center justify-between w-full mt-auto">
+            <span class="text-2xl font-black">₹400</span>
+            <button onclick="addToCart('original', 'Original', 400, 'images/bag_original.png')" class="bg-white text-gray-900 font-bold px-5 py-2 rounded-full hover:bg-gray-200 transition-colors">Add to Cart</button>
+          </div>
+        </div>
+        <div class="glass-card rounded-3xl p-8 flex flex-col items-center text-center reveal delay-300 hover:-translate-y-2 transition-transform duration-300">
+          <img src="images/bag_salted.png" alt="Lightly Salted" class="w-48 h-64 object-contain mb-6 drop-shadow-xl" />
+          <h3 class="text-2xl font-bold mb-2">Lightly Salted</h3>
+          <p class="text-white/70 mb-4 font-medium">Just a pinch of goodness</p>
+          <div class="flex items-center justify-between w-full mt-auto">
+            <span class="text-2xl font-black">₹400</span>
+            <button onclick="addToCart('salted', 'Lightly Salted', 400, 'images/bag_salted.png')" class="bg-white text-gray-900 font-bold px-5 py-2 rounded-full hover:bg-gray-200 transition-colors">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ SCOOP SECTION ══════════ -->
+    <section id="scoop" class="py-24 px-5 md:px-10 max-w-[1400px] mx-auto min-h-[60vh] flex flex-col justify-center">
+      <div class="glass-card rounded-[40px] p-8 md:p-16 reveal flex flex-col md:flex-row items-center gap-12">
+        <div class="flex-1 text-left">
+          <h2 class="text-4xl md:text-5xl font-black uppercase mb-6 tracking-tight">The Inside Scoop</h2>
+          <p class="text-lg text-white/90 mb-6 leading-relaxed font-medium">
+            We source only the finest farm-grown potatoes and grill them to absolute perfection. Unlike regular chips, our signature wavy cut ensures every bite holds maximum flavor and delivers an unparalleled crunch.
+          </p>
+          <ul class="space-y-4 mb-8">
+            <li class="flex items-center gap-3">
+              <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+              <span class="font-bold text-lg">100% Real Potatoes</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+              <span class="font-bold text-lg">Zero Artificial Flavors</span>
+            </li>
+            <li class="flex items-center gap-3">
+              <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+              <span class="font-bold text-lg">Perfectly Grilled</span>
+            </li>
+          </ul>
+          <a href="#about" class="inline-block bg-white text-gray-900 font-bold px-8 py-3 rounded-full hover:scale-105 transition-transform">Learn More</a>
+        </div>
+        <div class="flex-1 flex justify-center reveal delay-200">
+          <div class="relative w-full max-w-sm aspect-square glass-card rounded-full flex items-center justify-center p-10">
+            <img src="images/bag_original.png" alt="Chips Scoop" class="w-full h-full object-contain drop-shadow-2xl hover:scale-110 transition-transform duration-500" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ SWEET SECTION ══════════ -->
+    <section id="sweet" class="py-24 px-5 md:px-10 max-w-[1400px] mx-auto min-h-[50vh] flex flex-col justify-center">
+      <div class="text-center reveal">
+        <h2 class="text-4xl md:text-5xl font-black uppercase mb-4 tracking-tight">Sweet Deals</h2>
+        <p class="text-lg text-white/80 max-w-2xl mx-auto mb-12">Bundle up and save. Perfect for parties, movie nights, or when you just can't decide on one flavor.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div class="glass-card rounded-3xl p-8 flex items-center justify-between gap-6 reveal delay-100 hover:bg-white/20 transition-colors">
+            <div class="flex items-center gap-6">
+              <div class="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 relative">
+                <img src="images/bag_sea_salt.png" class="absolute inset-0 w-full h-full object-contain -rotate-12" />
+                <img src="images/bag_original.png" class="absolute inset-0 w-full h-full object-contain rotate-12 scale-110" />
+              </div>
+              <div class="text-left">
+                <h3 class="text-2xl font-bold mb-1">Duo Pack</h3>
+                <p class="text-white/70 mb-3 text-sm">Sea Salt + Original</p>
+                <div class="flex items-center gap-4">
+                  <span class="text-2xl font-black">₹750</span>
+                  <span class="text-sm line-through text-white/50">₹800</span>
+                </div>
+              </div>
+            </div>
+            <button onclick="addToCart('duo-pack', 'Duo Pack', 750, 'images/bag_original.png')" class="p-3 bg-white text-black rounded-full hover:scale-110 transition-transform">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+            </button>
+          </div>
+          
+          <div class="glass-card rounded-3xl p-8 flex items-center justify-between gap-6 reveal delay-200 hover:bg-white/20 transition-colors">
+            <div class="flex items-center gap-6">
+              <div class="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 relative">
+                <img src="images/bag_original.png" class="absolute inset-0 w-full h-full object-contain -translate-x-4 -rotate-6" />
+                <img src="images/bag_sea_salt.png" class="absolute inset-0 w-full h-full object-contain translate-x-4 rotate-12" />
+                <img src="images/bag_salted.png" class="absolute inset-0 w-full h-full object-contain z-10 scale-110" />
+              </div>
+              <div class="text-left">
+                <h3 class="text-2xl font-bold mb-1">Party Trio</h3>
+                <p class="text-white/70 mb-3 text-sm">All 3 Flavors</p>
+                <div class="flex items-center gap-4">
+                  <span class="text-2xl font-black">₹1050</span>
+                  <span class="text-sm line-through text-white/50">₹1200</span>
+                </div>
+              </div>
+            </div>
+            <button onclick="addToCart('party-trio', 'Party Trio', 1050, 'images/bag_salted.png')" class="p-3 bg-white text-black rounded-full hover:scale-110 transition-transform">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ ABOUT US SECTION ══════════ -->
+    <section id="about" class="py-24 px-5 md:px-10 max-w-[1400px] mx-auto min-h-[60vh] flex flex-col justify-center">
+      <div class="glass-card rounded-[40px] p-8 md:p-16 reveal text-center">
+        <h2 class="text-4xl md:text-5xl font-black uppercase mb-8 tracking-tight">Our Story</h2>
+        <p class="text-xl text-white/90 max-w-4xl mx-auto leading-relaxed font-medium mb-10">
+          Founded on the simple belief that a potato chip should be nothing short of extraordinary. We embarked on a journey to reinvent the classic snack, turning simple spuds into a culinary experience. Every bag represents our commitment to quality, flavor, and the perfect crunch. 
+        </p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center max-w-4xl mx-auto">
+          <div class="p-6">
+            <h4 class="text-4xl font-black mb-2">10M+</h4>
+            <p class="text-white/70 font-bold uppercase tracking-wider text-sm">Bags Sold</p>
+          </div>
+          <div class="p-6">
+            <h4 class="text-4xl font-black mb-2">100%</h4>
+            <p class="text-white/70 font-bold uppercase tracking-wider text-sm">Natural</p>
+          </div>
+          <div class="p-6">
+            <h4 class="text-4xl font-black mb-2">3</h4>
+            <p class="text-white/70 font-bold uppercase tracking-wider text-sm">Signature Flavors</p>
+          </div>
+          <div class="p-6">
+            <h4 class="text-4xl font-black mb-2">24/7</h4>
+            <p class="text-white/70 font-bold uppercase tracking-wider text-sm">Crunch Time</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ FOOTER ══════════ -->
+    <footer class="py-10 text-center border-t border-white/10 mt-10 backdrop-blur-md bg-black/20">
+      <p class="text-white/50 font-medium">© 2026 Chips Co. All rights reserved. Made with ❤️ by 7digit.</p>
+    </footer>
+  </div>
+
+  <!-- ══════════ MOBILE STICKY ORDER BAR ══════════ -->
+  <div class="mobile-order-bar hidden max-md:flex items-center justify-between">
+    <div>
+      <span id="mobileFlavorName" class="text-sm font-bold">Sea Salt</span>
+      <span class="text-lg font-extrabold ml-2">₹400</span>
+    </div>
+    <button id="mobileOrderHeroBtn" class="btn-order bg-white text-gray-900 font-bold text-sm px-6 py-3 rounded-full hover:scale-105 transition-transform inline-block">
+      Add to Cart
+    </button>
+  </div>
+
+  <!-- ══════════ CART SIDEBAR & OVERLAY ══════════ -->
+  <div id="cartOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] hidden transition-opacity"></div>
+  <div id="cartSidebar" class="cart-sidebar fixed top-0 right-0 h-full w-full max-w-md bg-gray-900/95 backdrop-blur-xl z-[100] flex flex-col shadow-2xl border-l border-white/10">
+    <div class="p-6 border-b border-white/10 flex justify-between items-center bg-black/20">
+      <h2 class="text-2xl font-bold flex items-center gap-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        Your Cart
+      </h2>
+      <button id="closeCartBtn" class="p-2 rounded-full hover:bg-white/10 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+    
+    <div id="cartItems" class="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
+      <!-- Cart items go here -->
+      <div id="emptyCartMsg" class="flex flex-col items-center justify-center h-full text-white/50">
+        <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+        <p class="text-lg">Your cart is empty.</p>
+        <button onclick="closeCart()" class="mt-4 text-white underline hover:text-white/80">Continue Shopping</button>
+      </div>
+    </div>
+    
+    <div class="p-6 border-t border-white/10 bg-black/30">
+      <div class="flex justify-between items-center mb-6 text-xl font-bold">
+        <span>Total:</span>
+        <span id="cartTotal">₹0</span>
+      </div>
+      <button id="checkoutBtn" class="w-full bg-white text-gray-900 font-bold py-4 rounded-full hover:bg-gray-200 transition-colors text-lg flex items-center justify-center gap-2">
+        Proceed to Checkout
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-[110] flex flex-col gap-3 pointer-events-none"></div>
+
+  <!-- ══════════ JAVASCRIPT ══════════ -->
+  <script>
+    // ── Flavor Data ──
+    const flavors = [
+      { id: 'sea-salt', name: 'Sea Salt', bagImage: 'images/bag_sea_salt.png', bgColor: '#5b6e7a', heading: 'Eat Our<br/>Grilled Potato<br/>Chips', price: '₹400', rawPrice: 400, desc: 'Experience the satisfying crunch of our perfectly grilled wavy chips. Crafted from premium potatoes, every bite delivers bold flavor and an irresistible texture that keeps you coming back.' },
+      { id: 'original', name: 'Original', bagImage: 'images/bag_original.png', bgColor: '#b5451b', heading: 'Taste The<br/>Classic Original<br/>Crunch', price: '₹400', rawPrice: 400, desc: 'The one that started it all. Our Original flavor packs the perfect balance of salt and savory goodness into every wavy ridge. A timeless snack for every occasion.' },
+      { id: 'salted', name: 'Lightly Salted', bagImage: 'images/bag_salted.png', bgColor: '#c49a1a', heading: 'Enjoy Our<br/>Lightly Salted<br/>Delight', price: '₹400', rawPrice: 400, desc: 'Just the right touch of salt to let the natural potato flavor shine through. Light, crispy, and utterly addictive — guilt-free goodness in every handful.' },
+    ];
+
+    let activeIndex = 0;
+    let isPlaying = true;
+    let autoTimer = null;
+
+    // ── Cart State ──
+    let cart = {}; 
+    /* format: { 'item-id': { name, price, quantity, image } } */
+
+    // ── DOM Refs ──
+    const bgScene = document.getElementById('bgScene');
+    const heroBag = document.getElementById('heroBag');
+    const heroHeading = document.getElementById('heroHeading');
+    const heroPrice = document.getElementById('heroPrice');
+    const heroDesc = document.getElementById('heroDesc');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const pauseIcon = document.getElementById('pauseIcon');
+    const playIcon = document.getElementById('playIcon');
+    const thumbs = document.querySelectorAll('.thumb-bag');
+    const dotContainer = document.getElementById('dotIndicators');
+    const mobileFlavorName = document.getElementById('mobileFlavorName');
+    const menuToggle = document.getElementById('menuToggle');
+    const menuClose = document.getElementById('menuClose');
+    const mobileMenu = document.getElementById('mobileMenu');
+    
+    // Buttons
+    const orderHeroBtn = document.getElementById('orderHeroBtn');
+    const mobileOrderHeroBtn = document.getElementById('mobileOrderHeroBtn');
+    const cartBtn = document.getElementById('cartBtn');
+    const closeCartBtn = document.getElementById('closeCartBtn');
+    const cartOverlay = document.getElementById('cartOverlay');
+    const cartSidebar = document.getElementById('cartSidebar');
+    const cartItems = document.getElementById('cartItems');
+    const cartTotal = document.getElementById('cartTotal');
+    const cartBadge = document.getElementById('cartBadge');
+    const emptyCartMsg = document.getElementById('emptyCartMsg');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+
+    // ── Cart Logic ──
+    function addToCart(id, name, price, image) {
+      if (cart[id]) {
+        cart[id].quantity += 1;
+      } else {
+        cart[id] = { name, price, quantity: 1, image };
+      }
+      updateCartUI();
+      showToast(`${name} added to cart!`);
+    }
+
+    function removeFromCart(id) {
+      if (cart[id]) {
+        cart[id].quantity -= 1;
+        if (cart[id].quantity <= 0) {
+          delete cart[id];
+        }
+      }
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      let totalItems = 0;
+      let totalPrice = 0;
+      
+      // Clear current items (except empty message)
+      Array.from(cartItems.children).forEach(child => {
+        if (child.id !== 'emptyCartMsg') child.remove();
+      });
+
+      const keys = Object.keys(cart);
+      if (keys.length === 0) {
+        emptyCartMsg.style.display = 'flex';
+        cartBadge.classList.add('hidden');
+        checkoutBtn.disabled = true;
+        checkoutBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      } else {
+        emptyCartMsg.style.display = 'none';
+        cartBadge.classList.remove('hidden');
+        checkoutBtn.disabled = false;
+        checkoutBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        
+        keys.forEach(id => {
+          const item = cart[id];
+          totalItems += item.quantity;
+          totalPrice += item.price * item.quantity;
+          
+          const el = document.createElement('div');
+          el.className = 'flex items-center gap-4 bg-white/5 p-3 rounded-2xl border border-white/10';
+          el.innerHTML = `
+            <div class="w-16 h-16 bg-white/10 rounded-xl p-2 flex items-center justify-center">
+              <img src="${item.image}" class="w-full h-full object-contain" />
+            </div>
+            <div class="flex-1">
+              <h4 class="font-bold">${item.name}</h4>
+              <p class="text-white/60 text-sm">₹${item.price}</p>
+            </div>
+            <div class="flex items-center gap-3 bg-black/40 rounded-full px-3 py-1">
+              <button onclick="removeFromCart('${id}')" class="text-white/60 hover:text-white pb-1">-</button>
+              <span class="font-bold">${item.quantity}</span>
+              <button onclick="addToCart('${id}', '${item.name}', ${item.price}, '${item.image}')" class="text-white/60 hover:text-white pb-1">+</button>
+            </div>
+          `;
+          cartItems.appendChild(el);
+        });
+      }
+      
+      cartBadge.textContent = totalItems;
+      cartTotal.textContent = `₹${totalPrice}`;
+    }
+
+    function openCart() {
+      cartSidebar.classList.add('open');
+      cartOverlay.classList.remove('hidden');
+      document.body.style.overflow = 'hidden'; // prevent bg scroll
+    }
+
+    function closeCart() {
+      cartSidebar.classList.remove('open');
+      cartOverlay.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast bg-white text-gray-900 font-bold px-6 py-3 rounded-full shadow-2xl flex items-center gap-3';
+      toast.innerHTML = `
+        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+        ${message}
+      `;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Hero Order Buttons
+    orderHeroBtn.addEventListener('click', () => {
+      const activeFlavor = flavors[activeIndex];
+      addToCart(activeFlavor.id, activeFlavor.name, activeFlavor.rawPrice, activeFlavor.bagImage);
+    });
+    mobileOrderHeroBtn.addEventListener('click', () => {
+      const activeFlavor = flavors[activeIndex];
+      addToCart(activeFlavor.id, activeFlavor.name, activeFlavor.rawPrice, activeFlavor.bagImage);
+    });
+
+    // Cart Events
+    cartBtn.addEventListener('click', openCart);
+    closeCartBtn.addEventListener('click', closeCart);
+    cartOverlay.addEventListener('click', closeCart);
+    checkoutBtn.addEventListener('click', () => {
+      alert("Order placed successfully! This is a demo.");
+      cart = {};
+      updateCartUI();
+      closeCart();
+    });
+
+    // ── Build dot indicators ──
+    flavors.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.className = `w-2.5 h-2.5 rounded-full transition-all duration-300 ${i === 0 ? 'bg-white w-8' : 'bg-white/30'}`;
+      dot.setAttribute('aria-label', `Go to flavor ${i + 1}`);
+      dot.addEventListener('click', () => goTo(i));
+      dotContainer.appendChild(dot);
+    });
+
+    // ── Core State Transition ──
+    function goTo(index) {
+      if (index === activeIndex) return;
+      activeIndex = index;
+      applyState();
+      resetAutoPlay();
+    }
+
+    function applyState() {
+      const flavor = flavors[activeIndex];
+      bgScene.style.backgroundColor = flavor.bgColor;
+
+      const texts = document.querySelectorAll('.hero-text');
+      texts.forEach(el => el.classList.add('fading'));
+      setTimeout(() => {
+        heroHeading.innerHTML = flavor.heading;
+        heroPrice.textContent = flavor.price;
+        heroDesc.textContent = flavor.desc;
+        if (mobileFlavorName) mobileFlavorName.textContent = flavor.name;
+        texts.forEach(el => el.classList.remove('fading'));
+      }, 350);
+
+      heroBag.classList.remove('entering');
+      void heroBag.offsetWidth; // reflow
+      heroBag.src = flavor.bagImage;
+      heroBag.alt = `${flavor.name} Chips`;
+      heroBag.classList.add('entering');
+
+      thumbs.forEach((t, i) => {
+        t.classList.toggle('active', i === activeIndex);
+      });
+
+      const dots = dotContainer.querySelectorAll('button');
+      dots.forEach((d, i) => {
+        if (i === activeIndex) {
+          d.className = 'w-8 h-2.5 rounded-full bg-white transition-all duration-300';
+        } else {
+          d.className = 'w-2.5 h-2.5 rounded-full bg-white/30 transition-all duration-300';
+        }
+      });
+    }
+
+    function startAutoPlay() {
+      stopAutoPlay();
+      autoTimer = setInterval(() => {
+        const next = (activeIndex + 1) % flavors.length;
+        activeIndex = next;
+        applyState();
+      }, 4000);
+    }
+    function stopAutoPlay() {
+      if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    }
+    function resetAutoPlay() {
+      if (isPlaying) startAutoPlay();
+    }
+
+    prevBtn.addEventListener('click', () => { goTo((activeIndex - 1 + flavors.length) % flavors.length); });
+    nextBtn.addEventListener('click', () => { goTo((activeIndex + 1) % flavors.length); });
+    playPauseBtn.addEventListener('click', () => {
+      isPlaying = !isPlaying;
+      pauseIcon.classList.toggle('hidden', !isPlaying);
+      playIcon.classList.toggle('hidden', isPlaying);
+      if (isPlaying) startAutoPlay(); else stopAutoPlay();
+    });
+    thumbs.forEach(t => t.addEventListener('click', () => goTo(parseInt(t.dataset.index))));
+
+    // Mobile menu
+    menuToggle.addEventListener('click', () => mobileMenu.classList.add('open'));
+    menuClose.addEventListener('click', () => mobileMenu.classList.remove('open'));
+    mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.remove('open')));
+
+    // Scroll Animation
+    function reveal() {
+      var reveals = document.querySelectorAll(".reveal");
+      for (var i = 0; i < reveals.length; i++) {
+        var windowHeight = window.innerHeight;
+        var elementTop = reveals[i].getBoundingClientRect().top;
+        if (elementTop < windowHeight - 100) {
+          reveals[i].classList.add("active");
+        }
+      }
+    }
+    window.addEventListener("scroll", reveal);
+    reveal();
+
+    // Particles
+    function spawnParticles() {
+      const container = document.getElementById('particles');
+      for (let i = 0; i < 25; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = Math.random() * 8 + 2;
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.top = (20 + Math.random() * 150) + '%';
+        p.style.animationDuration = (8 + Math.random() * 16) + 's';
+        p.style.animationDelay = (Math.random() * 10) + 's';
+        container.appendChild(p);
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') prevBtn.click();
+      if (e.key === 'ArrowRight') nextBtn.click();
+    });
+
+    // Init
+    spawnParticles();
+    startAutoPlay();
+    updateCartUI(); // init cart state
+  </script>
+</body>
+</html>
